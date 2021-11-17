@@ -16,5 +16,7 @@ public interface Launcher {
 
     File getGameDataDir();
 
+    File getLauncherDir();
+
     boolean isInstalled();
 }

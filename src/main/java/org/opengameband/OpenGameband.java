@@ -19,6 +19,8 @@ public class OpenGameband implements PropertyChangeListener {
     private static boolean isMacOs;
     private BasicLauncher launcher;
 
+    public boolean downloadDone;
+
     public OpenGameband() {
 
         if (isMacOs) {
@@ -43,13 +45,14 @@ public class OpenGameband implements PropertyChangeListener {
 
         downloadMinecraftButton.addActionListener(e -> {
             try {
-                if(launcher.isInstalled()){
+                if(!launcher.isInstalled()){
                     launcher.install();
                 }
                 else {
                     launcher.start();
                 }
             } catch (LauncherInstallFailure | LauncherFailiure ex) {
+                ex.printStackTrace();
                 JOptionPane.showMessageDialog(null, "Failed to download minecraft", "ERROR", JOptionPane.ERROR_MESSAGE);
             }
         });
@@ -67,8 +70,6 @@ public class OpenGameband implements PropertyChangeListener {
     }
 
     public static void main(String[] args) throws UnsupportedLookAndFeelException, ClassNotFoundException, InstantiationException, IllegalAccessException {
-        System.out.println(System.getProperty("os.name"));
-        Logger.getLogger(OpenGameband.class.getName()).log(Level.INFO, System.getProperty("user.dir"));
 
         if (System.getProperty("os.name", "").startsWith("Mac OS")) {
             System.setProperty("apple.laf.useScreenMenuBar", "true");

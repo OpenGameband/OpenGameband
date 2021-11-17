@@ -30,7 +30,7 @@ public class Downloader extends SwingWorker<Void, Void> {
     @Override
     protected Void doInBackground() throws Exception {
         try {
-
+            gui.downloadDone = false;
             URL download = new URL(downloadURL);
             URLConnection connection = download.openConnection();
 
@@ -61,6 +61,7 @@ public class Downloader extends SwingWorker<Void, Void> {
             setProgress(0);
             cancel(true);
         }
+        gui.downloadDone = true;
         return null;
     }
 
@@ -74,6 +75,7 @@ public class Downloader extends SwingWorker<Void, Void> {
             JOptionPane.showMessageDialog(null,
                     "File has been downloaded successfully!", "Message",
                     JOptionPane.INFORMATION_MESSAGE);
+            gui.downloadDone = true;
         }
     }
 }
