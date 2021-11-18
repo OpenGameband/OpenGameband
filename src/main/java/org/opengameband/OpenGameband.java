@@ -8,6 +8,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -17,7 +18,7 @@ public class OpenGameband implements PropertyChangeListener {
     private JButton downloadMinecraftButton;
 
     private static boolean isMacOs;
-    private BasicLauncher launcher;
+    public BasicLauncher launcher;
 
     public boolean downloadDone;
 
@@ -33,7 +34,6 @@ public class OpenGameband implements PropertyChangeListener {
             Desktop.getDesktop().setPreferencesHandler(e -> openSettings());
 
         }
-
         downloadProgress.putClientProperty("JProgressBar.style", "circular");
         downloadProgress.putClientProperty("JComponent.sizeVariant", "mini");
 

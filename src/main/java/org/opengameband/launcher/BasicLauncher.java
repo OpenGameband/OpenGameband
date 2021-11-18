@@ -1,6 +1,7 @@
 package org.opengameband.launcher;
 
 import org.opengameband.*;
+import org.opengameband.exceptions.DownloadException;
 import org.opengameband.exceptions.LauncherFailiure;
 import org.opengameband.exceptions.LauncherInstallFailure;
 import org.opengameband.util.DownloadURLs;
@@ -10,7 +11,7 @@ import org.opengameband.util.FileUtils;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
+import java.util.Objects;
 
 import static org.opengameband.util.MountPoint.GetMountPoint;
 
@@ -43,22 +44,32 @@ public class BasicLauncher implements Launcher {
     }
 
     @Override
-    public void install() throws LauncherInstallFailure {
-        getLauncherDir().mkdirs();
-        System.out.println("Downloading launcher from " + DownloadURLs.getOSDownloadURL().getURL());
+    public void download() throws DownloadException {
+        if (!getLauncherDir().mkdirs()){
+            System.out.println("Not all subdirectories were created, some directories may already exist, or there might be permissions issues");
+        }
+        System.out.println("Downloading launcher from " + Objects.requireNonNull(DownloadURLs.getOSDownloadURL()).getURL());
         Downloader downloader = new Downloader(gb, DownloadURLs.getOSDownloadURL().getURL(), new File(getLauncherDir(), DownloadURLs.getOSDownloadURL().getFile()).getAbsolutePath());
         downloader.addPropertyChangeListener(gb);
         downloader.execute();
+    }
 
+    @Override
+    public void install() throws LauncherInstallFailure {
         switch(System.getProperty("os.name").split(" ")[0]) {
             case "Mac":
                 try {
-                    Runtime.getRuntime().exec("hdiutil attach " + getLauncherDir().getAbsolutePath()+DownloadURLs.getOSDownloadURL().getFile()).isAlive();
+                    Process p = Runtime.getRuntime().exec("hdiutil attach " + getLauncherDir().getAbsolutePath()+DownloadURLs.getOSDownloadURL().getFile());
+                    byte[] inputBytes = p.getInputStream().readAllBytes();
+                    String stdin = new String(inputBytes);
+                    System.out.println(stdin);
+                    System.out.println(stdin.substring(stdin.indexOf("/dev/disk")));
                     Thread.sleep(1000);
                     FileUtils.CopyDir(Paths.get("/Volumes/Minecraft/Minecraft.app"),getInstallDir().toPath());
-            } catch (IOException | InterruptedException e) {
+
+                } catch (IOException | InterruptedException e) {
                     e.printStackTrace();
-            }
+                }
         }
     }
 

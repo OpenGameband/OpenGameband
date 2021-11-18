@@ -1,6 +1,7 @@
 package org.opengameband.util;
 
 import org.opengameband.OpenGameband;
+import org.opengameband.exceptions.LauncherInstallFailure;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -76,6 +77,11 @@ public class Downloader extends SwingWorker<Void, Void> {
                     "File has been downloaded successfully!", "Message",
                     JOptionPane.INFORMATION_MESSAGE);
             gui.downloadDone = true;
+            try {
+                gui.launcher.install();
+            } catch (LauncherInstallFailure e) {
+                e.printStackTrace();
+            }
         }
     }
 }
