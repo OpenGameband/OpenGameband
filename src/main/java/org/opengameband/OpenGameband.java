@@ -1,5 +1,6 @@
 package org.opengameband;
 
+import org.opengameband.exceptions.DownloadException;
 import org.opengameband.exceptions.LauncherFailiure;
 import org.opengameband.exceptions.LauncherInstallFailure;
 import org.opengameband.launcher.BasicLauncher;
@@ -46,12 +47,12 @@ public class OpenGameband implements PropertyChangeListener {
         downloadMinecraftButton.addActionListener(e -> {
             try {
                 if(!launcher.isInstalled()){
-                    launcher.install();
+                    launcher.download();
                 }
                 else {
                     launcher.start();
                 }
-            } catch (LauncherInstallFailure | LauncherFailiure ex) {
+            } catch (LauncherFailiure | DownloadException ex) {
                 ex.printStackTrace();
                 JOptionPane.showMessageDialog(null, "Failed to download minecraft", "ERROR", JOptionPane.ERROR_MESSAGE);
             }

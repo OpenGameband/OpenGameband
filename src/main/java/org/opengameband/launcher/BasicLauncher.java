@@ -11,7 +11,9 @@ import org.opengameband.util.FileUtils;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static org.opengameband.util.MountPoint.GetMountPoint;
 
@@ -30,8 +32,16 @@ public class BasicLauncher implements Launcher {
     @Override
     public void start() throws LauncherFailiure {
         try {
-            Runtime.getRuntime().exec(new String[]{GetMountPoint().getAbsolutePath()+"/Launchers/Official/Minecraft.app/Contents/MacOS/launcher",
-                    "--workDir", getGameDataDir().getAbsolutePath()});
+            switch (System.getProperty("os.name").split(" ")[0]) {
+                case "Mac": {
+                    Runtime.getRuntime().exec(new String[]{GetMountPoint().getAbsolutePath() + "/Launchers/Official/Minecraft.app/Contents/MacOS/launcher",
+                            "--workDir", getGameDataDir().getAbsolutePath()});
+                }
+                case "Windows": {
+                    Runtime.getRuntime().exec(new String[]{getInstallDir().getAbsolutePath() + "\\Minecraft.exe",
+                            "--workDir", getGameDataDir().getAbsolutePath()});
+                }
+            }
         } catch (IOException e) {
             System.err.println(e.getMessage());
             throw new LauncherFailiure();
@@ -45,7 +55,7 @@ public class BasicLauncher implements Launcher {
 
     @Override
     public void download() throws DownloadException {
-        if (!getLauncherDir().mkdirs()){
+        if (!getLauncherDir().mkdirs()) {
             System.out.println("Not all subdirectories were created, some directories may already exist, or there might be permissions issues");
         }
         System.out.println("Downloading launcher from " + Objects.requireNonNull(DownloadURLs.getOSDownloadURL()).getURL());
@@ -56,20 +66,21 @@ public class BasicLauncher implements Launcher {
 
     @Override
     public void install() throws LauncherInstallFailure {
-        switch(System.getProperty("os.name").split(" ")[0]) {
+        switch (System.getProperty("os.name").split(" ")[0]) {
             case "Mac":
                 try {
-                    Process p = Runtime.getRuntime().exec("hdiutil attach " + getLauncherDir().getAbsolutePath()+DownloadURLs.getOSDownloadURL().getFile());
+                    Process p = Runtime.getRuntime().exec("hdiutil attach " + getLauncherDir().getAbsolutePath() + DownloadURLs.getOSDownloadURL().getFile());
                     byte[] inputBytes = p.getInputStream().readAllBytes();
                     String stdin = new String(inputBytes);
                     System.out.println(stdin);
                     System.out.println(stdin.substring(stdin.indexOf("/dev/disk")));
                     Thread.sleep(1000);
-                    FileUtils.CopyDir(Paths.get("/Volumes/Minecraft/Minecraft.app"),getInstallDir().toPath());
+                    FileUtils.CopyDir(Paths.get("/Volumes/Minecraft/Minecraft.app"), getInstallDir().toPath());
 
                 } catch (IOException | InterruptedException e) {
                     e.printStackTrace();
                 }
+
         }
     }
 
@@ -86,11 +97,10 @@ public class BasicLauncher implements Launcher {
         if (GetMountPoint().exists() && GetMountPoint().isDirectory() && GetMountPoint().canRead()) {
             switch (System.getProperty("os.name").split(" ")[0]) {
                 case "Windows":
-                    return new File(GetMountPoint(), "/Launchers/Official/win");
+                case "Linux":
+                    return new File(GetMountPoint(), "/Launchers/Official");
                 case "Mac":
                     return new File(GetMountPoint(), "/Launchers/Official/Minecraft.app");
-                case "Linux":
-                    return new File(GetMountPoint(), "/Launchers/Official/lin");
             }
         }
         return null;
@@ -106,7 +116,6 @@ public class BasicLauncher implements Launcher {
 
     @Override
     public boolean isInstalled() {
-        System.out.println(getInstallDir().getAbsolutePath());
-        return getInstallDir().exists();
+        return getInstallDir().exists() && getInstallDir().listFiles().length > 0;
     }
 }
