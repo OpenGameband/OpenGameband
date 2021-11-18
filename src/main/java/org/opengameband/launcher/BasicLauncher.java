@@ -9,7 +9,9 @@ import org.opengameband.util.FileUtils;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static org.opengameband.util.MountPoint.GetMountPoint;
 
@@ -25,15 +27,15 @@ public class BasicLauncher implements Launcher {
     @Override
     public void start() throws LauncherFailiure {
         try {
-            switch (System.getProperty("os.name").split(" ")[0]) { // Windows is dumb
-                case "Mac":
+            switch (System.getProperty("os.name").split(" ")[0]) {
+                case "Mac": {
                     Runtime.getRuntime().exec(new String[]{GetMountPoint().getAbsolutePath() + "/Launchers/Official/Minecraft.app/Contents/MacOS/launcher",
                             "--workDir", getGameDataDir().getAbsolutePath()});
-                    break;
-                case "Windows":
-                    Runtime.getRuntime().exec(new String[]{GetMountPoint().getAbsolutePath() + "\\Launchers\\Official\\win\\MinecraftLauncher.exe",
+                }
+                case "Windows": {
+                    Runtime.getRuntime().exec(new String[]{getInstallDir().getAbsolutePath() + "\\Minecraft.exe",
                             "--workDir", getGameDataDir().getAbsolutePath()});
-                    break;
+                }
             }
         } catch (IOException e) {
             System.err.println(e.getMessage());
@@ -96,8 +98,6 @@ public class BasicLauncher implements Launcher {
                     return new File(getLauncherDir(), "\\win");
                 case "Mac":
                     return new File(GetMountPoint(), "/Launchers/Official/Minecraft.app");
-                case "Linux":
-                    return new File(GetMountPoint(), "/Launchers/Official/lin");
             }
         }
         return null;
@@ -113,7 +113,6 @@ public class BasicLauncher implements Launcher {
 
     @Override
     public boolean isInstalled() {
-        System.out.println(getInstallDir().getAbsolutePath());
-        return getInstallDir().exists();
+        return getInstallDir().exists() && getInstallDir().listFiles().length > 0;
     }
 }
