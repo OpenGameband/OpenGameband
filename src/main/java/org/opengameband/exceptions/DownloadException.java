@@ -1,7 +1,7 @@
 package org.opengameband.exceptions;
 
 /**
- * @author Zaprit <henry@vorax.org>
+ * @author Zaprit
  */
 public class DownloadException extends Exception {
 }

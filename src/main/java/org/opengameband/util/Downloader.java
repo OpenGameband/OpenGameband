@@ -1,7 +1,5 @@
 package org.opengameband.util;
 
-import org.opengameband.exceptions.LauncherInstallFailure;
-
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
@@ -11,13 +9,13 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 
 /**
- * @author Zaprit <henry@vorax.org>
+ * @author Zaprit
  */
 public class Downloader extends SwingWorker<Void, Void> {
     private static final int BUFFER_SIZE = 4096;
     private final String downloadURL;
     private final String outputFileName;
-    private Consumer<String> callBack;
+    private final Consumer<String> callBack;
 
     public Downloader(Consumer<String> callBack, String downloadURL, String outputFileName) {
         this.callBack = callBack;
@@ -29,9 +27,9 @@ public class Downloader extends SwingWorker<Void, Void> {
      * Executed in background thread
      */
     @Override
-    protected Void doInBackground() throws Exception {
+    protected Void doInBackground() {
         try {
-          //  gui.downloadDone = false;
+            //  gui.downloadDone = false;
             URL download = new URL(downloadURL);
             URLConnection connection = download.openConnection();
 
@@ -39,16 +37,15 @@ public class Downloader extends SwingWorker<Void, Void> {
             FileOutputStream outputStream = new FileOutputStream(outputFileName);
 
             byte[] buffer = new byte[BUFFER_SIZE];
-            int bytesRead = -1;
+            int bytesRead;
             long totalBytesRead = 0;
-            int percentCompleted = 0;
+            int percentCompleted;
             long fileSize = connection.getContentLength();
 
             while ((bytesRead = connection.getInputStream().read(buffer)) != -1) {
                 outputStream.write(buffer, 0, bytesRead);
                 totalBytesRead += bytesRead;
                 percentCompleted = (int) (totalBytesRead * 100 / fileSize);
-
                 setProgress(percentCompleted);
             }
 
@@ -70,6 +67,7 @@ public class Downloader extends SwingWorker<Void, Void> {
      */
     @Override
     protected void done() {
+        setProgress(0);
         callBack.accept(outputFileName);
     }
 }

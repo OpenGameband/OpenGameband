@@ -1,6 +1,5 @@
 package org.opengameband.gui;
 
-import org.opengameband.exceptions.DownloadException;
 import org.opengameband.exceptions.LauncherFailiure;
 import org.opengameband.exceptions.LauncherInstallFailure;
 import org.opengameband.launcher.BasicLauncher;
@@ -13,7 +12,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
 /**
- * @author Zaprit <henry@vorax.org>
+ * @author Zaprit
  */
 public class MainWindow extends JFrame implements PropertyChangeListener {
 
@@ -44,11 +43,10 @@ public class MainWindow extends JFrame implements PropertyChangeListener {
             Launcher launch = new BasicLauncher();
             if (!launch.isInstalled()) {
                 launch.install();
+            }else {
+                launch.start();
             }
-            launch.start();
-        } catch (LauncherInstallFailure ex) {
-            ex.printStackTrace();
-        } catch (LauncherFailiure ex) {
+        } catch (LauncherInstallFailure | LauncherFailiure ex) {
             ex.printStackTrace();
         }
     }

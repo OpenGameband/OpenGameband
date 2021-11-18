@@ -3,7 +3,7 @@ package org.opengameband.util;
 import java.io.File;
 
 /**
- * @author Zaprit <henry@vorax.org>
+ * @author Zaprit
  */
 public class MountPoint {
     public MountPoint() {

@@ -5,7 +5,7 @@ import org.opengameband.gui.MainWindow;
 import javax.swing.*;
 
 /**
- * @author Zaprit <henry@vorax.org>
+ * @author Zaprit
  */
 public class Main {
 

@@ -6,7 +6,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 
 /**
- * @author Zaprit <henry@vorax.org>
+ * @author Zaprit
  */
 public class FileUtils {
     public static void CopyDir(Path sourceDir, Path destinationDir) throws IOException {

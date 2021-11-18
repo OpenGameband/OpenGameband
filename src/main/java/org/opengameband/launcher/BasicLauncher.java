@@ -2,7 +2,6 @@ package org.opengameband.launcher;
 
 import org.opengameband.*;
 import org.opengameband.exceptions.LauncherFailiure;
-import org.opengameband.exceptions.LauncherInstallFailure;
 import org.opengameband.util.DownloadURLs;
 import org.opengameband.util.Downloader;
 import org.opengameband.util.FileUtils;
@@ -26,8 +25,16 @@ public class BasicLauncher implements Launcher {
     @Override
     public void start() throws LauncherFailiure {
         try {
-            Runtime.getRuntime().exec(new String[]{GetMountPoint().getAbsolutePath()+"/Launchers/Official/Minecraft.app/Contents/MacOS/launcher",
-                    "--workDir", getGameDataDir().getAbsolutePath()});
+            switch (System.getProperty("os.name").split(" ")[0]) { // Windows is dumb
+                case "Mac":
+                    Runtime.getRuntime().exec(new String[]{GetMountPoint().getAbsolutePath() + "/Launchers/Official/Minecraft.app/Contents/MacOS/launcher",
+                            "--workDir", getGameDataDir().getAbsolutePath()});
+                    break;
+                case "Windows":
+                    Runtime.getRuntime().exec(new String[]{GetMountPoint().getAbsolutePath() + "\\Launchers\\Official\\win\\MinecraftLauncher.exe",
+                            "--workDir", getGameDataDir().getAbsolutePath()});
+                    break;
+            }
         } catch (IOException e) {
             System.err.println(e.getMessage());
             throw new LauncherFailiure();
@@ -40,19 +47,19 @@ public class BasicLauncher implements Launcher {
     }
 
     @Override
-    public void install() throws LauncherInstallFailure {
+    public void install() {
 
-        if (!getLauncherDir().mkdirs()){
+        if (!getInstallDir().mkdirs() && !getInstallDir().exists()) {
             System.out.println("Not all subdirectories were created, some directories may already exist, or there might be permissions issues");
         }
         System.out.println("Downloading launcher from " + Objects.requireNonNull(DownloadURLs.getOSDownloadURL()).getURL());
-        Downloader downloader = new Downloader(this::extract, DownloadURLs.getOSDownloadURL().getURL(), new File(getLauncherDir(), DownloadURLs.getOSDownloadURL().getFile()).getAbsolutePath());
+        Downloader downloader = new Downloader(this::extract, DownloadURLs.getOSDownloadURL().getURL(), new File(getInstallDir(), DownloadURLs.getOSDownloadURL().getFile()).getAbsolutePath());
         downloader.addPropertyChangeListener(Main.getWindow());
         downloader.execute();
     }
 
-    private void extract(String file){
-        switch(System.getProperty("os.name").split(" ")[0]) {
+    private void extract(String file) {
+        switch (System.getProperty("os.name").split(" ")[0]) {
             case "Mac":
                 try {
                     Process p = Runtime.getRuntime().exec("hdiutil attach " + file);
@@ -61,11 +68,15 @@ public class BasicLauncher implements Launcher {
                     System.out.println(stdin);
                     System.out.println(stdin.substring(stdin.indexOf("/dev/disk")));
                     Thread.sleep(1000);
-                    FileUtils.CopyDir(Paths.get("/Volumes/Minecraft/Minecraft.app"),getInstallDir().toPath());
+                    FileUtils.CopyDir(Paths.get("/Volumes/Minecraft/Minecraft.app"), getInstallDir().toPath());
 
                 } catch (IOException | InterruptedException e) {
                     e.printStackTrace();
+
                 }
+                break;
+            case "Linux":
+                throw new RuntimeException("Not Yet Implemented");
         }
     }
 
@@ -82,7 +93,7 @@ public class BasicLauncher implements Launcher {
         if (GetMountPoint().exists() && GetMountPoint().isDirectory() && GetMountPoint().canRead()) {
             switch (System.getProperty("os.name").split(" ")[0]) {
                 case "Windows":
-                    return new File(GetMountPoint(), "/Launchers/Official/win");
+                    return new File(getLauncherDir(), "\\win");
                 case "Mac":
                     return new File(GetMountPoint(), "/Launchers/Official/Minecraft.app");
                 case "Linux":
