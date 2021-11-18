@@ -11,8 +11,6 @@ public interface Launcher {
 
     String getName();
 
-    void download() throws DownloadException;
-
     void install() throws LauncherInstallFailure;
 
     File getInstallDir();

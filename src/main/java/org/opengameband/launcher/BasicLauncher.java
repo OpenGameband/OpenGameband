@@ -1,7 +1,6 @@
 package org.opengameband.launcher;
 
 import org.opengameband.*;
-import org.opengameband.exceptions.DownloadException;
 import org.opengameband.exceptions.LauncherFailiure;
 import org.opengameband.exceptions.LauncherInstallFailure;
 import org.opengameband.util.DownloadURLs;
@@ -21,10 +20,7 @@ import static org.opengameband.util.MountPoint.GetMountPoint;
  */
 public class BasicLauncher implements Launcher {
 
-    OpenGameband gb;
-
-    public BasicLauncher(OpenGameband gb) {
-        this.gb = gb;
+    public BasicLauncher() {
     }
 
     @Override
@@ -44,22 +40,22 @@ public class BasicLauncher implements Launcher {
     }
 
     @Override
-    public void download() throws DownloadException {
+    public void install() throws LauncherInstallFailure {
+
         if (!getLauncherDir().mkdirs()){
             System.out.println("Not all subdirectories were created, some directories may already exist, or there might be permissions issues");
         }
         System.out.println("Downloading launcher from " + Objects.requireNonNull(DownloadURLs.getOSDownloadURL()).getURL());
-        Downloader downloader = new Downloader(gb, DownloadURLs.getOSDownloadURL().getURL(), new File(getLauncherDir(), DownloadURLs.getOSDownloadURL().getFile()).getAbsolutePath());
-        downloader.addPropertyChangeListener(gb);
+        Downloader downloader = new Downloader(this::extract, DownloadURLs.getOSDownloadURL().getURL(), new File(getLauncherDir(), DownloadURLs.getOSDownloadURL().getFile()).getAbsolutePath());
+        downloader.addPropertyChangeListener(Main.getWindow());
         downloader.execute();
     }
 
-    @Override
-    public void install() throws LauncherInstallFailure {
+    private void extract(String file){
         switch(System.getProperty("os.name").split(" ")[0]) {
             case "Mac":
                 try {
-                    Process p = Runtime.getRuntime().exec("hdiutil attach " + getLauncherDir().getAbsolutePath()+DownloadURLs.getOSDownloadURL().getFile());
+                    Process p = Runtime.getRuntime().exec("hdiutil attach " + file);
                     byte[] inputBytes = p.getInputStream().readAllBytes();
                     String stdin = new String(inputBytes);
                     System.out.println(stdin);

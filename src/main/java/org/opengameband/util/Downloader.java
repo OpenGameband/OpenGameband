@@ -1,12 +1,12 @@
 package org.opengameband.util;
 
-import org.opengameband.OpenGameband;
 import org.opengameband.exceptions.LauncherInstallFailure;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.function.Consumer;
 import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 
@@ -17,10 +17,10 @@ public class Downloader extends SwingWorker<Void, Void> {
     private static final int BUFFER_SIZE = 4096;
     private final String downloadURL;
     private final String outputFileName;
-    private OpenGameband gui;
+    private Consumer<String> callBack;
 
-    public Downloader(OpenGameband gui, String downloadURL, String outputFileName) {
-        this.gui = gui;
+    public Downloader(Consumer<String> callBack, String downloadURL, String outputFileName) {
+        this.callBack = callBack;
         this.downloadURL = downloadURL;
         this.outputFileName = outputFileName;
     }
@@ -31,7 +31,7 @@ public class Downloader extends SwingWorker<Void, Void> {
     @Override
     protected Void doInBackground() throws Exception {
         try {
-            gui.downloadDone = false;
+          //  gui.downloadDone = false;
             URL download = new URL(downloadURL);
             URLConnection connection = download.openConnection();
 
@@ -62,7 +62,6 @@ public class Downloader extends SwingWorker<Void, Void> {
             setProgress(0);
             cancel(true);
         }
-        gui.downloadDone = true;
         return null;
     }
 
@@ -71,17 +70,6 @@ public class Downloader extends SwingWorker<Void, Void> {
      */
     @Override
     protected void done() {
-        if (!isCancelled()) {
-
-            JOptionPane.showMessageDialog(null,
-                    "File has been downloaded successfully!", "Message",
-                    JOptionPane.INFORMATION_MESSAGE);
-            gui.downloadDone = true;
-            try {
-                gui.launcher.install();
-            } catch (LauncherInstallFailure e) {
-                e.printStackTrace();
-            }
-        }
+        callBack.accept(outputFileName);
     }
 }
