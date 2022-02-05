@@ -11,7 +11,7 @@ public class Main {
 
     private static MainWindow window;
 
-    public static MainWindow getWindow(){
+    public static MainWindow getWindow() {
         return window;
     }
 
@@ -22,18 +22,10 @@ public class Main {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                if (System.getProperty("os.name").contentEquals("Mac OS X")){
-                    try {
-                        UIManager.setLookAndFeel("org.violetlib.aqua.AquaLookAndFeel");
-                    } catch (Exception ex) {
-                        System.err.println("setLookAndFeel failed: " + ex);
-                    }
-                }else{
-                    try {
-                        UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-                    } catch (Exception ex) {
-                        System.err.println("setLookAndFeel failed: " + ex);
-                    }
+                try {
+                    UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+                } catch (Exception ex) {
+                    System.err.println("setLookAndFeel failed: " + ex);
                 }
 
                 window = new MainWindow("OpenGameband");
