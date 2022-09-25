@@ -11,6 +11,7 @@ buildscript {
     }
     dependencies {
         classpath 'io.github.fvarrui:javapackager:1.6.2'
+
     }
 
 }
@@ -18,20 +19,33 @@ buildscript {
 plugins {
     id 'java'
     id 'maven-publish'
+    id 'application'
 }
 
 apply plugin: 'io.github.fvarrui.javapackager.plugin'
 
 repositories {
-    mavenLocal()
-    maven {
-        url = uri('https://repo.maven.apache.org/maven2/')
+    mavenCentral()
+}
+dependencies {
+    implementation 'org.hid4java:hid4java:0.7.0'
+}
+
+jar {
+    manifest {
+        attributes(
+                'Main-Class': 'org.opengameband.Main'
+        )
+    }
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
 }
 
-dependencies {
-    implementation 'org.violetlib:vaqua:10'
+application {
+    mainClass = "org.opengameband.Main"
 }
+
 group = 'org.vorax.henry.OpenGameband'
 version = '0.1.0'
 description = 'OpenGameband'
